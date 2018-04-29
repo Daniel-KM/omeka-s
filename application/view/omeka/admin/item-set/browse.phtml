@@ -1,7 +1,5 @@
 <?php
 $this->htmlElement('body')->appendAttribute('class', 'item-sets browse');
-$userIsAllowedBatchUpdate = $this->userIsAllowed('Omeka\Api\Adapter\ItemSetAdapter', 'batch_update');
-$userIsAllowedBatchDelete = $this->userIsAllowed('Omeka\Api\Adapter\ItemSetAdapter', 'batch_delete');
 $escape = $this->plugin('escapeHtml');
 $sortHeadings = [
     [
@@ -33,7 +31,6 @@ $sortHeadings = [
     <?php echo $this->sortSelector($sortHeadings); ?>
 </div>
 
-
 <div id="page-actions">
     <?php if ($this->userIsAllowed('Omeka\Api\Adapter\ItemSetAdapter', 'create')): ?>
     <?php echo $this->hyperlink($this->translate('Add new item set'), $this->url(null, ['action' => 'add'], true), ['class' => 'button']); ?>
@@ -41,23 +38,26 @@ $sortHeadings = [
 </div>
 
 <?php $this->trigger('view.browse.before'); ?>
-<?php if($itemSets): ?>
+<?php if ($itemSets): ?>
+<?php
+$userIsAllowedBatchUpdate = $this->userIsAllowed('Omeka\Api\Adapter\ItemSetAdapter', 'batch_update');
+$userIsAllowedBatchDelete = $this->userIsAllowed('Omeka\Api\Adapter\ItemSetAdapter', 'batch_delete');
+?>
 <form method="post" id="batch-form" class="disable-unsaved-warning">
-    <?php if ($userIsAllowedBatchUpdate || $userIsAllowedBatchDelete): ?>
     <div class="batch-inputs">
         <select class="batch-actions-select" aria-label="<?php echo $this->translate('Batch actions'); ?>">
             <option value="default"><?php echo $this->translate('Batch actions'); ?></option>
             <?php if ($userIsAllowedBatchUpdate): ?>
-            <option value="update-selected" disabled="true"><?php echo $this->translate('Edit selected'); ?></option>
+            <option value="update-selected" disabled="disabled"><?php echo $this->translate('Edit selected'); ?></option>
             <option value="update-all"><?php echo $this->translate('Edit all'); ?></option>
             <?php endif; ?>
             <?php if ($userIsAllowedBatchDelete): ?>
-            <option value="delete-selected" disabled="true"><?php echo $this->translate('Delete selected'); ?></option>
+            <option value="delete-selected" disabled="disabled"><?php echo $this->translate('Delete selected'); ?></option>
             <option value="delete-all"><?php echo $this->translate('Delete all'); ?></option>
             <?php endif; ?>
         </select>
         <div class="batch-actions">
-            <button type="button" class="default active" disabled="true"><?php echo $this->translate('Go'); ?></button>
+            <button type="button" class="default active" disabled="disabled"><?php echo $this->translate('Go'); ?></button>
             <?php if ($userIsAllowedBatchUpdate): ?>
             <input type="submit" class="update-selected" name="update_selected" value="<?php echo $this->translate('Go'); ?>" formaction="<?php echo $escape($this->url(null, ['action' => 'batch-edit'], true)); ?>">
             <input type="submit" class="update-all" name="update_all" value="<?php echo $this->translate('Go'); ?>" formaction="<?php echo $escape($this->url(null, ['action' => 'batch-edit-all'], true)); ?>">
@@ -69,12 +69,12 @@ $sortHeadings = [
             <?php endif; ?>
         </div>
     </div>
-    <?php endif; ?>
+
 <table class="tablesaw batch-edit" data-tablesaw-mode="stack">
     <thead>
         <tr>
             <th>
-                <input type="checkbox" class="select-all" <?php if (!($userIsAllowedBatchUpdate || $userIsAllowedBatchDelete)): ?> disabled="true"<?php endif; ?> aria-label="<?php echo $this->translate('Select all'); ?>">
+                <input type="checkbox" class="select-all" aria-label="<?php echo $this->translate('Select all'); ?>">
                 <?php echo $this->translate('Title'); ?>
             </th>
             <th><?php echo $this->translate('Class'); ?></th>
@@ -102,7 +102,7 @@ $sortHeadings = [
         ?>
         <tr>
             <td>
-                <input type="checkbox" name="resource_ids[]" value="<?php echo $itemSet->id(); ?>"<?php if (!($userIsAllowedUpdate || $userIsAllowedDelete)): ?> disabled="true"<?php endif; ?> aria-label="<?php echo $this->translate('Select item set'); ?>">
+                <input type="checkbox" name="resource_ids[]" value="<?php echo $itemSet->id(); ?>" aria-label="<?php echo $this->translate('Select item set'); ?>">
                 <?php echo $itemSet->linkPretty(); ?>
                 <?php if (!$itemSet->isPublic()): ?>
                     <span class="o-icon-private" aria-label="<?php echo $this->translate('Private'); ?>"></span>
