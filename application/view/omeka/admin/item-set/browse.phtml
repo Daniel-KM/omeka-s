@@ -43,17 +43,17 @@ $sortHeadings = [
 <form method="post" id="batch-form" class="disable-unsaved-warning">
     <?php if ($this->userIsAllowed('Omeka\Api\Adapter\ItemSetAdapter', 'batch_update')): ?>
     <div class="batch-inputs">
-        <select class="batch-actions-select" aria-label="<?php echo $this->translate('Batch actions'); ?>">
+        <select class="batch-actions-select" name="batch_action" aria-label="<?php echo $this->translate('Batch actions'); ?>">
             <option value="default"><?php echo $this->translate('Batch actions'); ?></option>
-            <option value="update-selected" disabled="true"><?php echo $this->translate('Edit selected'); ?></option>
-            <option value="update-all"><?php echo $this->translate('Edit all'); ?></option>
-            <option value="delete-selected" disabled="true"><?php echo $this->translate('Delete selected'); ?></option>
-            <option value="delete-all"><?php echo $this->translate('Delete all'); ?></option>
+            <option value="update-selected" data-select="selected" disabled="disabled"><?php echo $this->translate('Edit selected'); ?></option>
+            <option value="update-all" data-select="all"><?php echo $this->translate('Edit all'); ?></option>
+            <option value="delete-selected" data-select="selected" disabled="disabled"><?php echo $this->translate('Delete selected'); ?></option>
+            <option value="delete-all" data-select="all"><?php echo $this->translate('Delete all'); ?></option>
         </select>
         <div class="batch-actions">
-            <button type="button" class="default active" disabled="true"><?php echo $this->translate('Go'); ?></button>
-            <input type="submit" class="update-selected" name="update_selected" value="<?php echo $this->translate('Go'); ?>" formaction="<?php echo $escape($this->url(null, ['action' => 'batch-edit'], true)); ?>">
-            <input type="submit" class="update-all" name="update_all" value="<?php echo $this->translate('Go'); ?>" formaction="<?php echo $escape($this->url(null, ['action' => 'batch-edit-all'], true)); ?>">
+            <button type="button" class="default active" disabled="disabled"><?php echo $this->translate('Go'); ?></button>
+            <input type="submit" class="update-selected" value="<?php echo $this->translate('Go'); ?>" formaction="<?php echo $escape($this->url(null, ['action' => 'batch-edit'], true)); ?>">
+            <input type="submit" class="update-all" value="<?php echo $this->translate('Go'); ?>" formaction="<?php echo $escape($this->url(null, ['action' => 'batch-edit-all'], true)); ?>">
             <input type="hidden" name="query" class="batch-query" value="<?php echo $escape(json_encode($this->params()->fromQuery())); ?>">
             <a class="delete button sidebar-content delete-selected" data-sidebar-selector="#sidebar-delete-selected"><?php echo $this->translate('Go'); ?></a>
             <a class="delete button sidebar-content delete-all" data-sidebar-selector="#sidebar-delete-all"><?php echo $this->translate('Go'); ?></a>
