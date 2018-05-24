@@ -178,7 +178,7 @@ var Omeka = {
     },
 
     manageSelectedActions: function() {
-        var selectedOptions = $('#batch-form .batch-inputs [data-select=selected]');
+        var selectedOptions = $('#batch-form .batch-inputs .batch-selected');
         if ($('.batch-edit td input[type="checkbox"]:checked').length > 0) {
             selectedOptions.removeAttr('disabled');
         } else {
