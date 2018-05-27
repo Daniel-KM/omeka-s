@@ -400,6 +400,7 @@ return [
             'blockLayout' => Service\ViewHelper\BlockLayoutFactory::class,
             'blockThumbnailTypeSelect' => Service\ViewHelper\BlockThumbnailTypeSelectFactory::class,
             'dataType' => Service\ViewHelper\DataTypeFactory::class,
+            'defaultSiteSlug' => Service\ViewHelper\DefaultSiteSlugFactory::class,
             'i18n' => Service\ViewHelper\I18nFactory::class,
             'media' => Service\ViewHelper\MediaFactory::class,
             'navigationLink' => Service\ViewHelper\NavigationLinkFactory::class,
