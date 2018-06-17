@@ -127,6 +127,7 @@ class ItemAdapter extends AbstractResourceEntityAdapter
             $itemSetsData = $request->getValue('o:item_set', []);
             $itemSetAdapter = $this->getAdapter('item_sets');
             $itemSets = $entity->getItemSets();
+            $itemSetsAssigned = [];
             $itemSetsToRetain = [];
 
             foreach ($itemSetsData as $itemSetData) {
@@ -144,10 +145,11 @@ class ItemAdapter extends AbstractResourceEntityAdapter
                     }
                     continue;
                 }
-                if (!$itemSet) {
+                if (!$itemSet && !in_array($itemSetId, $itemSetsAssigned)) {
                     // Assign item set that was not already assigned.
                     $itemSet = $itemSetAdapter->findEntity($itemSetId);
                     $itemSets->add($itemSet);
+                    $itemSetsAssigned[] = $itemSetId;
                 }
                 $itemSetsToRetain[] = $itemSet;
             }
