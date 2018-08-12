@@ -1,4 +1,5 @@
 <?php
+$translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
 $this->htmlElement('body')->appendAttribute('class', 'items show');
 if ($owner = $item->owner()) {
@@ -14,6 +15,7 @@ $sectionNavs = [
 ?>
 <?php echo $this->pageTitle($item->displayTitle(), 1, $this->translate('Items')); ?>
 <div id="page-actions">
+    <?php echo $this->hyperlink($translate('Public view'), $this->publicResourceUrl($item), ['class' => 'button', 'target' => '_blank']); ?>
     <?php if ($item->userIsAllowed('update')): ?>
     <?php echo $item->link($this->translate('Edit item'), 'edit', ['class' => 'button']); ?>
     <?php endif; ?>
