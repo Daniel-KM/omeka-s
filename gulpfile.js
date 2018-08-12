@@ -170,6 +170,37 @@ function compileToMo(file) {
     return runCommand('msgfmt', [file, '-o', outFile]);
 }
 
+function zipDistDir(source = null, destination = null, zipname = null) {
+    if (!source) source = '.';
+    if (!destination) destination = buildDir;
+    if (!zipname) zipname = source.replace( /\\/g, '/' ).replace( /.*\//, '' );
+    var files = [
+        './**',
+        '!./**/*.dist',
+        '!./build/**',
+        '!./**/node_modules/**',
+        '!./package.json',
+        '!./package-lock.json',
+        '!./**/.tx/**',
+        '!./.php_cs',
+        '!./.php_cs.cache',
+        '!./.travis.yml',
+        '!./gulpfile.js',
+        '!./**/.git/**',
+        '!./**/.gitattributes',
+        '!./**/.gitignore'
+    ];
+    return gulp.src(
+            files,
+            {base: source, nodir: true, dot: true}
+        )
+        .pipe(rename(function (path) {
+            path.dirname = zipname + '/' + path.dirname;
+        }))
+        .pipe(zip(zipname + '.zip'))
+        .pipe(gulp.dest(destination));
+}
+
 gulp.task('css', function () {
     return cssToSass('./application');
 });
@@ -242,7 +273,73 @@ gulp.task('deps:js', function (cb) {
             .pipe(gulp.dest('./application/asset/vendor/' + module));
     });
     cb();
-})
+});
+
+gulp.task('deps:module:npm', function (done) {
+    var modulePath = path.join(__dirname, 'modules', cliOptions.module);
+    process.chdir(modulePath);
+    var manifest = path.join(modulePath, 'package.json');
+    return fs.existsSync(manifest)
+        ? runCommand('npm', ['install'], {cwd: modulePath})
+        : done();
+});
+
+gulp.task('deps:module:gulp', function (done) {
+    var modulePath = path.join(__dirname, 'modules', cliOptions.module);
+    process.chdir(modulePath);
+    var manifest = path.join(modulePath, 'gulpfile.js');
+    return fs.existsSync(manifest)
+        ? runCommand('gulp', ['install'], {cwd: modulePath})
+        : done();
+});
+
+gulp.task('deps:module:composer', function (done) {
+    var modulePath = path.join(__dirname, 'modules', cliOptions.module);
+    process.chdir(modulePath);
+    var manifest = path.join(modulePath, 'composer.json');
+    return fs.existsSync(manifest)
+        ? composer(['install'])
+        : done();
+});
+
+gulp.task('deps:module', gulp.series(
+    'deps:module:npm',
+    'deps:module:gulp',
+    'deps:module:composer'
+));
+
+gulp.task('deps:module:npm:update', function (done) {
+    var modulePath = path.join(__dirname, 'modules', cliOptions.module);
+    process.chdir(modulePath);
+    var manifest = path.join(modulePath, 'package.json');
+    return fs.existsSync(manifest)
+        ? runCommand('npm', ['update'], {cwd: modulePath})
+        : done();
+});
+
+gulp.task('deps:module:gulp:update', function (done) {
+    var modulePath = path.join(__dirname, 'modules', cliOptions.module);
+    process.chdir(modulePath);
+    var manifest = path.join(modulePath, 'gulpfile.js');
+    return fs.existsSync(manifest)
+        ? runCommand('gulp', ['update'], {cwd: modulePath})
+        : done();
+});
+
+gulp.task('deps:module:composer:update', function (done) {
+    var modulePath = path.join(__dirname, 'modules', cliOptions.module);
+    process.chdir(modulePath);
+    var manifest = path.join(modulePath, 'composer.json');
+    return fs.existsSync(manifest)
+        ? composer(['update'])
+        : done();
+});
+
+gulp.task('deps:module:update', gulp.series(
+    'deps:module:npm:update',
+    'deps:module:gulp:update',
+    'deps:module:composer:update'
+));
 
 gulp.task('dedist', function () {
     return gulp.src(['./.htaccess.dist', './config/*.dist', './logs/*.dist', './application/test/config/*.dist'], {base: '.'})
@@ -272,7 +369,7 @@ gulp.task('db:create-migration', function () {
                 .on('end', resolve);
         });
     });
-})
+});
 gulp.task('db', gulp.series('db:schema', 'db:proxies'));
 
 gulp.task('i18n:template', function () {
@@ -289,14 +386,14 @@ gulp.task('i18n:compile', function () {
     return glob('application/language/*.po').then(function (files) {
         return Promise.all(files.map(compileToMo));
     });
-})
+});
 
 gulp.task('i18n:debug', function () {
     var debugPo = path.join(langDir, 'debug.po');
     return runCommand('podebug', ['-i', pot, '-o', debugPo, '--rewrite=unicode']).then(function () {
         return compileToMo(debugPo);
     });
-})
+});
 
 gulp.task('i18n:module:template', function () {
     var modulePathPromise = getModulePath(cliOptions.module);
@@ -353,34 +450,45 @@ gulp.task('create-media-type-map', function () {
 
 gulp.task('init', gulp.series('dedist', 'deps'));
 
+gulp.task('init:module', gulp.series('deps:module'));
+
 gulp.task('clean', function () {
     return rimraf(buildDir).then(function () {
         rimraf(__dirname + '/vendor');
     });
 });
 
+gulp.task('clean:module', function () {
+    var module = cliOptions.module;
+    var modulePathPromise = getModulePath(module);
+    return modulePathPromise.then(function (modulePath) {
+        var moduleBuildDir = path.join(modulePath, 'build');
+        var moduleVendorDir = path.join(modulePath, 'vendor');
+        return rimraf(moduleBuildDir)
+            .then(function () {
+                rimraf(moduleVendorDir);
+            });
+    });
+});
+
 gulp.task('zip', gulp.series('clean', 'init', function () {
-    return gulp.src(
-        [
-            './**',
-            '!./**/*.dist',
-            '!./build/**',
-            '!./**/node_modules/**',
-            '!./package.json',
-            '!./package-lock.json',
-            '!./**/.tx/**',
-            '!./.php_cs',
-            '!./.php_cs.cache',
-            '!./.travis.yml',
-            '!./gulpfile.js',
-            '!./**/.git/**',
-            '!./**/.gitattributes',
-            '!./**/.gitignore'
-        ],
-        {base: '.', nodir: true, dot: true})
-        .pipe(rename(function (path) {
-            path.dirname = 'omeka-s/' + path.dirname;
-        }))
-        .pipe(zip('omeka-s.zip'))
-        .pipe(gulp.dest(buildDir))
+    return zipDistDir(__dirname, buildDir, 'omeka-s');
 }));
+
+gulp.task('zip:module', gulp.series(
+    function (done) {
+        var modulePath = path.join(__dirname, 'modules', cliOptions.module);
+        process.chdir(modulePath);
+        cliOptions.dev = false;
+        done();
+    },
+    'clean:module',
+    'init:module',
+    function () {
+        var module = cliOptions.module;
+        var modulePathPromise = getModulePath(module);
+        return modulePathPromise.then(function (modulePath) {
+            return zipDistDir(modulePath, path.join(modulePath, 'build'))
+        });
+    }
+));
