@@ -33,9 +33,10 @@ $sortHeadings = [
 <table class="tablesaw" data-tablesaw-mode="stack">
     <thead>
         <tr>
-            <th><?php echo $this->translate('ID'); ?></th>
+            <th><?php echo $this->translate('Id / Params'); ?></th>
+            <th><?php echo $this->translate('Date'); ?></th>
             <th><?php echo $this->translate('Class'); ?></th>
-            <th><?php echo $this->translate('Status'); ?></th>
+            <th><?php echo $this->translate('Status / Log'); ?></th>
             <th><?php echo $this->translate('Owner'); ?></th>
         </tr>
     </thead>
@@ -56,11 +57,15 @@ $sortHeadings = [
         }
         ?>
         <tr>
-            <td>
-                <?php echo $job->link($escape($job->id())); ?>
-            </td>
+            <td><?php echo $job->link($escape($job->id())); ?></td>
+            <td><?php echo $escape($this->i18n()->dateFormat($job->started(), null, \Omeka\View\Helper\i18n::DATE_FORMAT_SHORT)); ?></td>
             <td><?php echo $escape($job->jobClass()); ?></td>
-            <td><?php echo $escape($this->translate($job->statusLabel())); ?></td>
+            <td><?php if ($job->log()): ?>
+            <?php echo $this->hyperlink($this->translate($job->statusLabel()), $this->url('admin/id', ['controller' => 'job', 'action' => 'log', 'id' => $job->id()]), ['target' => '_blank']); ?>
+            <?php else: ?>
+            <?php echo $escape($this->translate($job->statusLabel())); ?>
+            <?php endif; ?>
+            </td>
             <td><?php echo $ownerText; ?></td>
         </tr>
         <?php endforeach; ?>
