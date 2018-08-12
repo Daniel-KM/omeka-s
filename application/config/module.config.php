@@ -177,8 +177,23 @@ return [
     ],
     'logger' => [
         'log' => false,
-        'path' => OMEKA_PATH . '/logs/application.log',
-        'priority' => \Zend\Log\Logger::NOTICE,
+        /** @deprecated 1.3.0 Use the options of the stream writer below. */
+        // 'path' => OMEKA_PATH . '/logs/application.log',
+        // 'priority' => \Zend\Log\Logger::NOTICE,
+        'writers' => [
+            'stream' => true,
+        ],
+        'options' => [
+            'writers' => [
+                'stream' => [
+                    'name' => 'stream',
+                    'options' => [
+                        'filters' => \Zend\Log\Logger::NOTICE,
+                        'stream' => OMEKA_PATH . '/logs/application.log',
+                    ],
+                ],
+            ],
+        ],
     ],
     'http_client' => [
         'adapter' => \Zend\Http\Client\Adapter\Socket::class,
