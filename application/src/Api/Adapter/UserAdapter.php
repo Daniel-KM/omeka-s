@@ -10,9 +10,6 @@ use Omeka\Stdlib\ErrorStore;
 
 class UserAdapter extends AbstractEntityAdapter
 {
-    /**
-     * {@inheritDoc}
-     */
     protected $sortFields = [
         'id' => 'id',
         'email' => 'email',
@@ -22,33 +19,21 @@ class UserAdapter extends AbstractEntityAdapter
         'role' => 'role',
     ];
 
-    /**
-     * {@inheritDoc}
-     */
     public function getResourceName()
     {
         return 'users';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getRepresentationClass()
     {
         return 'Omeka\Api\Representation\UserRepresentation';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getEntityClass()
     {
         return 'Omeka\Entity\User';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function hydrate(Request $request, EntityInterface $entity,
         ErrorStore $errorStore
     ) {
@@ -83,9 +68,6 @@ class UserAdapter extends AbstractEntityAdapter
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function buildQuery(QueryBuilder $qb, array $query)
     {
         if (isset($query['email'])) {
@@ -96,9 +78,6 @@ class UserAdapter extends AbstractEntityAdapter
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function validateEntity(EntityInterface $entity, ErrorStore $errorStore)
     {
         if (false == $entity->getName()) {
@@ -122,9 +101,6 @@ class UserAdapter extends AbstractEntityAdapter
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function preprocessBatchUpdate(array $data, Request $request)
     {
         $rawData = $request->getContent();
