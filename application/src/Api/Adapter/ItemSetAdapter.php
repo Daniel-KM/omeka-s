@@ -63,6 +63,9 @@ class ItemSetAdapter extends AbstractResourceEntityAdapter
 
         if (!empty($query['site_id'])) {
             $siteAdapter = $this->getAdapter('sites');
+            // Though $site isn't used here, this is intended to ensure that the
+            // user cannot perform a query against a private site he doesn't
+            // have access to.
             try {
                 $site = $siteAdapter->findEntity($query['site_id']);
             } catch (Exception\NotFoundException $e) {
