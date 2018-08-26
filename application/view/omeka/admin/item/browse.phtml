@@ -103,9 +103,7 @@ $userIsAllowedBatchDelete = $this->userIsAllowed('Omeka\Api\Adapter\ItemAdapter'
         ?>
         <tr>
             <td>
-                <?php if ($userIsAllowedBatchUpdate || $userIsAllowedBatchDelete): ?>
                 <input type="checkbox" name="resource_ids[]" value="<?php echo $item->id(); ?>" aria-label="<?php echo $translate('Select item'); ?>">
-                <?php endif; ?>
                 <?php echo $item->linkPretty(); ?>
                 <?php if (!$item->isPublic()): ?>
                     <span class="o-icon-private" aria-label="<?php echo $translate('Private'); ?>"></span>
