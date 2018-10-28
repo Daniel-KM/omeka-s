@@ -56,6 +56,7 @@ return [
         ],
         'filters' => [
             'resource_visibility' => Db\Filter\ResourceVisibilityFilter::class,
+            'value_visibility' => Db\Filter\ValueVisibilityFilter::class,
         ],
         'functions' => [
              'datetime' => [
@@ -408,6 +409,7 @@ return [
             'formColorPicker' => Form\View\Helper\FormColorPicker::class,
             'thumbnail' => View\Helper\Thumbnail::class,
             'userBar' => View\Helper\UserBar::class,
+            'cancelButton' => View\Helper\CancelButton::class,
         ],
         'factories' => [
             'api' => Service\ViewHelper\ApiFactory::class,
@@ -430,6 +432,7 @@ return [
             'userIsAllowed' => Service\ViewHelper\UserIsAllowedFactory::class,
             'deleteConfirm' => Service\ViewHelper\DeleteConfirmFactory::class,
             'resourceClassSelect' => Service\ViewHelper\ResourceClassSelectFactory::class,
+            'resourceTemplateSelect' => Service\ViewHelper\ResourceTemplateSelectFactory::class,
             'propertySelect' => Service\ViewHelper\PropertySelectFactory::class,
             'itemSetSelect' => Service\ViewHelper\ItemSetSelectFactory::class,
             'roleSelect' => Service\ViewHelper\RoleSelectFactory::class,
@@ -438,6 +441,7 @@ return [
             'resourceSelect' => Service\ViewHelper\ResourceSelectFactory::class,
             'jsTranslate' => Service\ViewHelper\JsTranslateFactory::class,
             'lang' => Service\ViewHelper\LangFactory::class,
+            'status' => Service\ViewHelper\StatusFactory::class,
         ],
         'delegators' => [
             'Zend\Form\View\Helper\FormElement' => [
@@ -472,6 +476,7 @@ return [
             'Omeka\Form\UserBatchUpdateForm' => Service\Form\UserBatchUpdateFormFactory::class,
             'Omeka\Form\Element\ResourceSelect' => Service\Form\Element\ResourceSelectFactory::class,
             'Omeka\Form\Element\ResourceClassSelect' => Service\Form\Element\ResourceClassSelectFactory::class,
+            'Omeka\Form\Element\ResourceTemplateSelect' => Service\Form\Element\ResourceTemplateSelectFactory::class,
             'Omeka\Form\Element\PropertySelect' => Service\Form\Element\PropertySelectFactory::class,
             'Omeka\Form\Element\ItemSetSelect' => Service\Form\Element\ItemSetSelectFactory::class,
             'Omeka\Form\Element\SiteSelect' => Service\Form\Element\SiteSelectFactory::class,
@@ -499,6 +504,7 @@ return [
             'media' => Site\BlockLayout\Media::class,
             'browsePreview' => Site\BlockLayout\BrowsePreview::class,
             'itemShowCase' => Site\BlockLayout\ItemShowcase::class,
+            'listOfSites' => Site\BlockLayout\ListOfSites::class,
             'tableOfContents' => Site\BlockLayout\TableOfContents::class,
             'lineBreak' => Site\BlockLayout\LineBreak::class,
             'itemWithMetadata' => Site\BlockLayout\ItemWithMetadata::class,

@@ -13,7 +13,7 @@ class Module extends AbstractModule
     /**
      * This Omeka version.
      */
-    const VERSION = '1.3.0-alpha.1';
+    const VERSION = '1.2.1-alpha.2';
 
     /**
      * The vocabulary IRI used to define Omeka application data.
@@ -114,40 +114,29 @@ class Module extends AbstractModule
                 $resource,
                 'view.show.after',
                 function (ZendEvent $event) {
-                    $resource = $event->getTarget()->resource;
-                    echo $resource->embeddedJsonLd();
+                    $view = $event->getTarget();
+                    if (($view->status()->isAdminRequest() && !$view->setting('disable_jsonld_embed'))
+                        || ($view->status()->isSiteRequest() && !$view->siteSetting('disable_jsonld_embed'))
+                    ) {
+                        echo $view->resource->embeddedJsonLd();
+                    }
                 }
             );
             $sharedEventManager->attach(
                 $resource,
                 'view.browse.after',
                 function (ZendEvent $event) {
-                    $resources = $event->getTarget()->resources;
-                    foreach ($resources as $resource) {
-                        echo $resource->embeddedJsonLd();
+                    $view = $event->getTarget();
+                    if (($view->status()->isAdminRequest() && !$view->setting('disable_jsonld_embed'))
+                        || ($view->status()->isSiteRequest() && !$view->siteSetting('disable_jsonld_embed'))
+                    ) {
+                        foreach ($view->resources as $resource) {
+                            echo $resource->embeddedJsonLd();
+                        }
                     }
                 }
             );
         }
-
-        $sharedEventManager->attach(
-            '*',
-            'view.advanced_search',
-            function (ZendEvent $event) {
-                if ('item' === $event->getParam('resourceType')) {
-                    $partials = $event->getParam('partials');
-                    $partials[] = 'common/advanced-search/item-sets';
-                    $event->setParam('partials', $partials);
-                }
-            },
-            2
-        );
-
-        $sharedEventManager->attach(
-            \Omeka\Api\Adapter\UserAdapter::class,
-            'api.batch_update.post',
-            [$this, 'batchUpdatePostUser']
-        );
     }
 
     /**
