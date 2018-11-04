@@ -298,18 +298,13 @@ abstract class AbstractResourceEntityRepresentation extends AbstractEntityRepres
     public function value($term, array $options = [])
     {
         // Set defaults.
-        if (!isset($options['type'])) {
-            $options['type'] = null;
-        }
-        if (!isset($options['all'])) {
-            $options['all'] = false;
-        }
-        if (!isset($options['default'])) {
-            $options['default'] = null;
-        }
-        if (!isset($options['lang'])) {
-            $options['lang'] = null;
-        }
+        $defaultOptions = [
+            'type' => null,
+            'all' => false,
+            'default' => null,
+            'lang' => null,
+        ];
+        $options += $defaultOptions;
 
         if (!$this->getAdapter()->isTerm($term)) {
             return $options['default'];
