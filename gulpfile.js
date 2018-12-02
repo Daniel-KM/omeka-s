@@ -184,7 +184,7 @@ function compileToMo(file) {
     return runCommand('msgfmt', [file, '-o', outFile]);
 }
 
-function zipDistDir(source = null, destination = null, zipname = null) {
+function zipDistDir(source = null, destination = null, zipname = null, done) {
     if (!source) source = '.';
     if (!destination) destination = buildDir;
     if (!zipname) zipname = source.replace( /\\/g, '/' ).replace( /.*\//, '' );
@@ -204,7 +204,8 @@ function zipDistDir(source = null, destination = null, zipname = null) {
         '!./**/.gitattributes',
         '!./**/.gitignore'
     ];
-    return gulp.src(
+
+    var stream = gulp.src(
             files,
             {base: source, nodir: true, dot: true}
         )
@@ -213,6 +214,8 @@ function zipDistDir(source = null, destination = null, zipname = null) {
         }))
         .pipe(zip(zipname + '.zip'))
         .pipe(gulp.dest(destination));
+
+    stream.on('end', done);
 }
 
 function taskCss() {
@@ -570,8 +573,8 @@ gulp.task('clean:module', function () {
     });
 });
 
-var taskZip = gulp.series('clean', 'init', function () {
-    return zipDistDir(__dirname, buildDir, 'omeka-s');
+var taskZip = gulp.series('clean', 'init', function (done) {
+    return zipDistDir(__dirname, buildDir, 'omeka-s', done);
 });
 taskZip.description = 'Create zip archive'
 gulp.task('zip', taskZip);
@@ -585,11 +588,11 @@ gulp.task('zip:module', gulp.series(
     },
     'clean:module',
     'init:module',
-    function () {
+    function (done) {
         var module = cliOptions.module;
         var modulePathPromise = getModulePath(module);
-        return modulePathPromise.then(function (modulePath) {
-            return zipDistDir(modulePath, path.join(modulePath, 'build'))
+        modulePathPromise.then(function (modulePath) {
+            zipDistDir(modulePath, path.join(modulePath, 'build'), null, done);
         });
     }
 ));
