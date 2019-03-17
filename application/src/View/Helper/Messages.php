@@ -2,8 +2,8 @@
 namespace Omeka\View\Helper;
 
 use Omeka\Mvc\Controller\Plugin\Messenger;
-use Omeka\Stdlib\Message;
-use Omeka\Stdlib\PsrMessage;
+use Omeka\Stdlib\MessageInterface;
+use Zend\I18n\Translator\TranslatorAwareInterface;
 use Zend\View\Helper\AbstractHelper;
 
 /**
@@ -50,20 +50,16 @@ class Messages extends AbstractHelper
         foreach ($allMessages as $type => $messages) {
             $class = isset($typeToClass[$type]) ? $typeToClass[$type] : 'notice';
             foreach ($messages as $message) {
-                $escapeHtml = true; // escape HTML by default
-                if ($message instanceof Message) {
-                    $escapeHtml = $message->escapeHtml();
-                    $message = $translate($message);
-                } elseif ($message instanceof PsrMessage) {
-                    $escapeHtml = $message->escapeHtml();
-                    $message = $message->setTranslator($translator)->translate();
-                } else {
-                    $message = $translate($message);
-                }
+                $translation = $message instanceof TranslatorAwareInterface
+                    ? $message->setTranslator($translator)->translate()
+                    : $translate($message);
+                $escapeHtml = $message instanceof MessageInterface
+                    ? $message->escapeHtml()
+                    : true; // escape HTML by default
                 if ($escapeHtml) {
-                    $message = $escape($message);
+                    $translation = $escape($translation);
                 }
-                $output .= sprintf('<li class="%s">%s</li>', $class, $message);
+                $output .= sprintf('<li class="%s">%s</li>', $class, $translation);
             }
         }
         $output .= '</ul>';
