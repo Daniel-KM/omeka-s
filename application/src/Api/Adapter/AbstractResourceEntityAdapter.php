@@ -188,6 +188,10 @@ abstract class AbstractResourceEntityAdapter extends AbstractEntityAdapter
      *     - nin: does not contain
      *     - ex: has any value
      *     - nex: has no value
+     *     - list: is in list
+     *     - nlist: is not in list
+     *     - res: has resource
+     *     - nres: has no resource
      *
      * @param QueryBuilder $qb
      * @param array $query
@@ -238,6 +242,23 @@ abstract class AbstractResourceEntityAdapter extends AbstractEntityAdapter
                         $qb->expr()->like("$valuesAlias.uri", $param)
                     );
                     break;
+
+                case 'nlist':
+                    $positive = false;
+                    // No break.
+                case 'list':
+                    $list = is_array($value) ? $value : explode("\n", $value);
+                    $list = array_filter(array_map('trim', $list), 'strlen');
+                    if (empty($list)) {
+                        continue 2;
+                    }
+                    $param = $this->createNamedParameter($qb, $list);
+                    $predicateExpr = $qb->expr()->orX(
+                        $qb->expr()->in("$valuesAlias.value", $param),
+                        $qb->expr()->in("$valuesAlias.uri", $param)
+                    );
+                    break;
+
                 case 'nres':
                     $positive = false;
                 case 'res':
