@@ -147,7 +147,7 @@ class ValueRepresentation extends AbstractRepresentation
      *
      * This is the object of the RDF triple represented by this value.
      *
-     * @return null|AbstractResourceEntityRepresentation
+     * @return AbstractResourceEntityRepresentation|null
      */
     public function valueResource()
     {
