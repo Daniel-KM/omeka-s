@@ -38,17 +38,18 @@ class ItemSetAdapter extends AbstractResourceEntityAdapter
         if (isset($query['is_open'])) {
             $acl = $this->getServiceLocator()->get('Omeka\Acl');
             if (!$acl->userIsAllowed('Omeka\Entity\ItemSet', 'view-all')) {
-                $expr = $qb->expr()->eq(
-                    'Omeka\Entity\ItemSet.isOpen',
-                    $qb->expr()->literal(true)
+                $expr = $qb->expr();
+                $expression = $expr->eq(
+                    'omeka_root.isOpen',
+                    $expr->literal(true)
                 );
                 $identity = $this->getServiceLocator()
                     ->get('Omeka\AuthenticationService')->getIdentity();
                 if ($identity) {
-                    $expr = $qb->expr()->orX(
-                        $expr,
-                        $qb->expr()->eq(
-                            'Omeka\Entity\ItemSet.owner',
+                    $expression = $expr->orX(
+                        $expression,
+                        $expr->eq(
+                            'omeka_root.owner',
                             $this->createNamedParameter($qb, $identity->getId())
                         )
                     );

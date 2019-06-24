@@ -14,6 +14,7 @@ abstract class AbstractResourceEntityAdapter extends AbstractEntityAdapter
     public function buildQuery(QueryBuilder $qb, array $query)
     {
         $this->buildPropertyQuery($qb, $query);
+        $expr = $qb->expr();
 
         if (isset($query['search'])) {
             $this->buildPropertyQuery($qb, ['property' => [[
@@ -24,8 +25,8 @@ abstract class AbstractResourceEntityAdapter extends AbstractEntityAdapter
         }
 
         if (isset($query['id']) && is_numeric($query['id'])) {
-            $qb->andWhere($qb->expr()->eq(
-                $this->getEntityClass() . '.id',
+            $qb->andWhere($expr->eq(
+                'omeka_root.id',
                 $this->createNamedParameter($qb, $query['id'])
             ));
         }
@@ -36,7 +37,7 @@ abstract class AbstractResourceEntityAdapter extends AbstractEntityAdapter
                 $this->getEntityClass() . '.owner',
                 $userAlias
             );
-            $qb->andWhere($qb->expr()->eq(
+            $qb->andWhere($expr->eq(
                 "$userAlias.id",
                 $this->createNamedParameter($qb, $query['owner_id']))
             );
@@ -48,7 +49,7 @@ abstract class AbstractResourceEntityAdapter extends AbstractEntityAdapter
                 $this->getEntityClass() . '.resourceClass',
                 $resourceClassAlias
             );
-            $qb->andWhere($qb->expr()->eq(
+            $qb->andWhere($expr->eq(
                 "$resourceClassAlias.label",
                 $this->createNamedParameter($qb, $query['resource_class_label']))
             );
@@ -61,8 +62,8 @@ abstract class AbstractResourceEntityAdapter extends AbstractEntityAdapter
             }
             $classes = array_filter($classes, 'is_numeric');
             if ($classes) {
-                $qb->andWhere($qb->expr()->in(
-                    $this->getEntityClass() . '.resourceClass',
+                $qb->andWhere($expr->in(
+                    'omeka_root.resourceClass',
                     $this->createNamedParameter($qb, $classes)
                 ));
             }
@@ -75,16 +76,16 @@ abstract class AbstractResourceEntityAdapter extends AbstractEntityAdapter
             }
             $templates = array_filter($templates, 'is_numeric');
             if ($templates) {
-                $qb->andWhere($qb->expr()->in(
-                    $this->getEntityClass() . '.resourceTemplate',
+                $qb->andWhere($expr->in(
+                    'omeka_root.resourceTemplate',
                     $this->createNamedParameter($qb, $templates)
                 ));
             }
         }
 
         if (isset($query['is_public'])) {
-            $qb->andWhere($qb->expr()->eq(
-                $this->getEntityClass() . '.isPublic',
+            $qb->andWhere($expr->eq(
+                'omeka_root.isPublic',
                 $this->createNamedParameter($qb, (bool) $query['is_public'])
             ));
         }
@@ -122,7 +123,7 @@ abstract class AbstractResourceEntityAdapter extends AbstractEntityAdapter
     public function hydrate(Request $request, EntityInterface $entity,
         ErrorStore $errorStore
     ) {
-        $data = $request->getContent();
+        // $data = $request->getContent();
 
         if ($this->shouldHydrate($request, 'o:is_public')) {
             $entity->setIsPublic($request->getValue('o:is_public', true));
@@ -205,7 +206,9 @@ abstract class AbstractResourceEntityAdapter extends AbstractEntityAdapter
         if (!isset($query['property']) || !is_array($query['property'])) {
             return;
         }
-        $valuesJoin = $this->getEntityClass() . '.values';
+
+        $expr = $qb->expr();
+        $valuesJoin = 'omeka_root.values';
         $where = '';
 
         foreach ($query['property'] as $queryRow) {
@@ -233,9 +236,16 @@ abstract class AbstractResourceEntityAdapter extends AbstractEntityAdapter
                     // No break.
                 case 'eq':
                     $param = $this->createNamedParameter($qb, $value);
-                    $predicateExpr = $qb->expr()->orX(
-                        $qb->expr()->eq("$valuesAlias.value", $param),
-                        $qb->expr()->eq("$valuesAlias.uri", $param)
+                    $subqueryAlias = $this->createAlias();
+                    $subquery = $this->getEntityManager()
+                        ->createQueryBuilder()
+                        ->select("$subqueryAlias.id")
+                        ->from('Omeka\Entity\Resource', $subqueryAlias)
+                        ->where($expr->eq("$subqueryAlias.title", $param));
+                    $predicateExpr = $expr->orX(
+                        $expr->in("$valuesAlias.valueResource", $subquery->getDQL()),
+                        $expr->eq("$valuesAlias.value", $param),
+                        $expr->eq("$valuesAlias.uri", $param)
                     );
                     break;
 
@@ -244,9 +254,16 @@ abstract class AbstractResourceEntityAdapter extends AbstractEntityAdapter
                     // No break.
                 case 'in':
                     $param = $this->createNamedParameter($qb, "%$value%");
-                    $predicateExpr = $qb->expr()->orX(
-                        $qb->expr()->like("$valuesAlias.value", $param),
-                        $qb->expr()->like("$valuesAlias.uri", $param)
+                    $subqueryAlias = $this->createAlias();
+                    $subquery = $this->getEntityManager()
+                        ->createQueryBuilder()
+                        ->select("$subqueryAlias.id")
+                        ->from('Omeka\Entity\Resource', $subqueryAlias)
+                        ->where($expr->like("$subqueryAlias.title", $param));
+                    $predicateExpr = $expr->orX(
+                        $expr->in("$valuesAlias.valueResource", $subquery->getDQL()),
+                        $expr->like("$valuesAlias.value", $param),
+                        $expr->like("$valuesAlias.uri", $param)
                     );
                     break;
 
@@ -292,7 +309,7 @@ abstract class AbstractResourceEntityAdapter extends AbstractEntityAdapter
                     $positive = false;
                     // No break.
                 case 'res':
-                    $predicateExpr = $qb->expr()->eq(
+                    $predicateExpr = $expr->eq(
                         "$valuesAlias.valueResource",
                         $this->createNamedParameter($qb, $value)
                     );
@@ -302,7 +319,7 @@ abstract class AbstractResourceEntityAdapter extends AbstractEntityAdapter
                     $positive = false;
                     // No break.
                 case 'ex':
-                    $predicateExpr = $qb->expr()->isNotNull("$valuesAlias.id");
+                    $predicateExpr = $expr->isNotNull("$valuesAlias.id");
                     break;
 
                 default:
@@ -322,18 +339,18 @@ abstract class AbstractResourceEntityAdapter extends AbstractEntityAdapter
                         $propertyId = 0;
                     }
                 }
-                $joinConditions[] = $qb->expr()->eq("$valuesAlias.property", (int) $propertyId);
+                $joinConditions[] = $expr->eq("$valuesAlias.property", (int) $propertyId);
             }
 
             if ($positive) {
                 $whereClause = '(' . $predicateExpr . ')';
             } else {
                 $joinConditions[] = $predicateExpr;
-                $whereClause = $qb->expr()->isNull("$valuesAlias.id");
+                $whereClause = $expr->isNull("$valuesAlias.id");
             }
 
             if ($joinConditions) {
-                $qb->leftJoin($valuesJoin, $valuesAlias, 'WITH', $qb->expr()->andX(...$joinConditions));
+                $qb->leftJoin($valuesJoin, $valuesAlias, 'WITH', $expr->andX(...$joinConditions));
             } else {
                 $qb->leftJoin($valuesJoin, $valuesAlias);
             }
@@ -397,20 +414,21 @@ abstract class AbstractResourceEntityAdapter extends AbstractEntityAdapter
 
         $em = $this->getEntityManager();
         $qb = $em->createQueryBuilder();
+        $expr = $qb->expr();
         $qb->select('v')
             ->from('Omeka\Entity\Value', 'v')
             ->join('v.resource', 'r')
-            ->where($qb->expr()->eq('v.valueResource', $this->createNamedParameter($qb, $resource)));
+            ->where($expr->eq('v.valueResource', $this->createNamedParameter($qb, $resource)));
 
         if (!$acl->userIsAllowed('Omeka\Entity\Resource', 'view-all')) {
-            $qb->andWhere($qb->expr()->orX(
-                $qb->expr()->eq('r.isPublic', '1'),
-                $qb->expr()->eq('r.owner', $this->createNamedParameter($qb, $identity))
+            $qb->andWhere($expr->orX(
+                $expr->eq('r.isPublic', '1'),
+                $expr->eq('r.owner', $this->createNamedParameter($qb, $identity))
             ));
         }
 
         if ($property) {
-            $qb->andWhere($qb->expr()->eq('v.property', $this->createNamedParameter($qb, $property)));
+            $qb->andWhere($expr->eq('v.property', $this->createNamedParameter($qb, $property)));
         }
 
         $qb->setMaxResults($perPage);

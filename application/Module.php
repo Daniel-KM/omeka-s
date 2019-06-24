@@ -279,15 +279,16 @@ class Module extends AbstractModule
         $qb->innerJoin('Omeka\Entity\Media.item', $itemAlias);
 
         // Users can view media they do not own that belong to public items.
-        $expression = $qb->expr()->eq("$itemAlias.isPublic", true);
+        $expr = $qb->expr();
+        $expression = $expr->eq("$itemAlias.isPublic", true);
 
         $identity = $this->getServiceLocator()
             ->get('Omeka\AuthenticationService')->getIdentity();
         if ($identity) {
             // Users can view all media they own.
-            $expression = $qb->expr()->orX(
+            $expression = $expr->orX(
                 $expression,
-                $qb->expr()->eq(
+                $expr->eq(
                     "$itemAlias.owner",
                     $adapter->createNamedParameter($qb, $identity)
                 )
@@ -312,7 +313,8 @@ class Module extends AbstractModule
         $qb = $event->getParam('queryBuilder');
 
         // Users can view sites they do not own that are public.
-        $expression = $qb->expr()->eq("Omeka\Entity\Site.isPublic", true);
+        $expr = $qb->expr();
+        $expression = $expr->eq("omeka_root.isPublic", true);
 
         $identity = $this->getServiceLocator()
             ->get('Omeka\AuthenticationService')->getIdentity();
@@ -320,15 +322,15 @@ class Module extends AbstractModule
             $sitePermissionAlias = $adapter->createAlias();
             $qb->leftJoin('Omeka\Entity\Site.sitePermissions', $sitePermissionAlias);
 
-            $expression = $qb->expr()->orX(
+            $expression = $expr->orX(
                 $expression,
                 // Users can view all sites they own.
-                $qb->expr()->eq(
-                    "Omeka\Entity\Site.owner",
+                $expr->eq(
+                    'omeka_root.owner',
                     $adapter->createNamedParameter($qb, $identity)
                 ),
                 // Users can view sites where they have a role (any role).
-                $qb->expr()->eq(
+                $expr->eq(
                     "$sitePermissionAlias.user",
                     $adapter->createNamedParameter($qb, $identity)
                 )

@@ -71,30 +71,31 @@ class UserAdapter extends AbstractEntityAdapter
 
     public function buildQuery(QueryBuilder $qb, array $query)
     {
+        $expr = $qb->expr();
         if (!empty($query['email'])) {
-            $qb->andWhere($qb->expr()->eq(
-                "Omeka\Entity\User.email",
+            $qb->andWhere($expr->eq(
+                "omeka_root.email",
                 $this->createNamedParameter($qb, $query['email']))
             );
         }
 
         if (!empty($query['name'])) {
-            $qb->andWhere($qb->expr()->eq(
-                "Omeka\Entity\User.name",
+            $qb->andWhere($expr->eq(
+                "omeka_root.name",
                 $this->createNamedParameter($qb, $query['name']))
             );
         }
 
         if (!empty($query['role'])) {
-            $qb->andWhere($qb->expr()->eq(
-                'Omeka\Entity\User.role',
+            $qb->andWhere($expr->eq(
+                'omeka_root.role',
                 $this->createNamedParameter($qb, $query['role']))
             );
         }
 
         if (isset($query['is_active']) && is_numeric($query['is_active'])) {
-            $qb->andWhere($qb->expr()->eq(
-                'Omeka\Entity\User.isActive',
+            $qb->andWhere($expr->eq(
+                'omeka_root.isActive',
                 $this->createNamedParameter($qb, (bool) $query['is_active']))
             );
         }
@@ -107,7 +108,7 @@ class UserAdapter extends AbstractEntityAdapter
                 'WITH',
                 $sitePermissionAlias . '.user = ' . $this->getEntityClass()
             );
-            $qb->andWhere($qb->expr()->eq(
+            $qb->andWhere($expr->eq(
                 "$sitePermissionAlias.site",
                 $this->createNamedParameter($qb, $query['site_permission_site_id']))
             );
