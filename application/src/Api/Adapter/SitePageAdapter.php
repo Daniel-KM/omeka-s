@@ -16,6 +16,8 @@ class SitePageAdapter extends AbstractEntityAdapter
 
     protected $sortFields = [
         'id' => 'id',
+        'slug' => 'slug',
+        'title' => 'title',
         'created' => 'created',
         'modified' => 'modified',
     ];
