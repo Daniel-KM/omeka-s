@@ -35,6 +35,41 @@ class SitePageAdapter extends AbstractEntityAdapter
         return \Omeka\Entity\SitePage::class;
     }
 
+    public function buildQuery(QueryBuilder $qb, array $query)
+    {
+
+        if (isset($query['slug'])) {
+            $qb->andWhere($qb->expr()->eq(
+                'omeka_root.slug',
+                $this->createNamedParameter($qb, $query['slug'])
+            ));
+        }
+
+        if (isset($query['site_id']) && is_numeric($query['site_id'])) {
+            $siteAlias = $this->createAlias();
+            $qb->innerJoin(
+                'omeka_root.site',
+                $siteAlias
+            );
+            $qb->andWhere($qb->expr()->eq(
+                "$siteAlias.id",
+                $this->createNamedParameter($qb, $query['site_id']))
+            );
+        }
+
+        if (isset($query['site_slug'])) {
+            $siteAlias = $this->createAlias();
+            $qb->innerJoin(
+                'omeka_root.site',
+                $siteAlias
+            );
+            $qb->andWhere($qb->expr()->eq(
+                "$siteAlias.slug",
+                $this->createNamedParameter($qb, $query['site_slug'])
+            ));
+        }
+    }
+
     public function hydrate(Request $request, EntityInterface $entity,
         ErrorStore $errorStore
     ) {
