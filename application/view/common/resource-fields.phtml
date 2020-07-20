@@ -18,6 +18,8 @@ if (isset($resource)) {
     // Set the logged in user's default template when adding a resource.
     $resourceTemplateSelect->setValue($this->userSetting('default_resource_template'));
 }
+
+$defaultDataTypes = $this->setting('resource_default_datatypes') ?: ['literal', 'resource', 'uri'];
 ?>
 
 <fieldset id="resource-values"
@@ -30,7 +32,7 @@ if (isset($resource)) {
         <?php endif; ?>
         <?php echo $this->formRow($resourceClassSelect); ?>
     </div>
-    <div id="properties" data-default-data-types="literal,resource,uri"></div>
+    <div id="properties" data-default-data-types="<?php echo implode(',', $defaultDataTypes) ?>"></div>
     <input type="hidden" name="values_json" id="values-json">
     <datalist id="value-languages" class="value-languages">
     <?php foreach ($this->setting('value_languages', []) as $value => $language): ?>
