@@ -449,7 +449,7 @@ class ResourceTemplateController extends AbstractActionController
     /**
      * Get the add/edit view.
      *
-     * @var bool $isUpdate
+     * @param bool $isUpdate
      * @return ViewModel
      */
     protected function getAddEditView($isUpdate = false)
@@ -476,6 +476,8 @@ class ResourceTemplateController extends AbstractActionController
             $data = $this->getDefaultResourceTemplate();
             $data = $this->fixDataArray($data);
             $form->setData($data);
+        } else {
+            $resourceTemplate = null;
         }
 
         if ($isPost) {

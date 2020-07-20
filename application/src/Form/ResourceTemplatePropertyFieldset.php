@@ -106,7 +106,7 @@ class ResourceTemplatePropertyFieldset extends Fieldset implements InputFilterPr
                 ],
                 'attributes' => [
                     // 'id' => 'data-type',
-                    'multiple' => false,
+                    'multiple' => true,
                     'data-placeholder' => 'Select data type…', // @translate
                     'data-property-key' => 'o:data_type',
                 ],
