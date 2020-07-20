@@ -54,8 +54,7 @@ class ResourceTemplate extends AbstractEntity
      *     targetEntity="ResourceTemplateProperty",
      *     mappedBy="resourceTemplate",
      *     orphanRemoval=true,
-     *     cascade={"persist", "remove", "detach"},
-     *     indexBy="property_id"
+     *     cascade={"persist", "remove", "detach"}
      * )
      * @OrderBy({"position" = "ASC"})
      */
