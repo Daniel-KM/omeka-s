@@ -30,7 +30,7 @@ class ResourceTemplatePropertyRepresentation extends AbstractRepresentation
             'o:property' => $this->property()->getReference(),
             'o:alternate_label' => $this->alternateLabel(),
             'o:alternate_comment' => $this->alternateComment(),
-            'o:data_type' => $this->dataType(),
+            'o:data_type' => $this->dataTypes(),
             'o:is_required' => $this->isRequired(),
             'o:is_private' => $this->isPrivate(),
             'o:settings' => $this->settings(),
@@ -80,12 +80,17 @@ class ResourceTemplatePropertyRepresentation extends AbstractRepresentation
     }
 
     /**
+     * @deprecated Since version 3.0.0. Use dataTypes() instead.
      * @return string|null
      */
     public function dataType()
     {
         // Check the data type against the list of registered data types.
-        $dataType = $this->templateProperty->getDataType();
+        $dataTypes = $this->templateProperty->getDataType();
+        if (empty($dataTypes)) {
+            return null;
+        }
+        $dataType = reset($dataTypes);
         // Treat an unknown data type as "Default".
         return $this->getServiceLocator()->get('Omeka\DataTypeManager')->has($dataType)
             ? $dataType
@@ -93,6 +98,28 @@ class ResourceTemplatePropertyRepresentation extends AbstractRepresentation
     }
 
     /**
+     * @return string[]
+     */
+    public function dataTypes()
+    {
+        // Check the data type against the list of registered data types.
+        $dataTypes = $this->templateProperty->getDataType();
+        if (empty($dataTypes)) {
+            return [];
+        }
+        $dataTypeManager = $this->getServiceLocator()->get('Omeka\DataTypeManager');
+        $result = [];
+        foreach ($dataTypes as $dataType) {
+            // Treat an unknown data type as "Default".
+            if ($dataTypeManager->has($dataType)) {
+                $result[] = $dataType;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * @deprecated Since version 3.0.0. Use dataTypeLabels() instead.
      * @return string
      */
     public function dataTypeLabel()
