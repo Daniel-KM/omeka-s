@@ -368,13 +368,6 @@ class ResourceTemplateController extends AbstractActionController
             $property = $templateProperty->property();
             $vocab = $property->vocabulary();
 
-            $dataTypeName = $templateProperty->dataType();
-            $dataTypeLabel = null;
-            if ($dataTypeName) {
-                $dataType = $this->dataTypeManager->get($dataTypeName);
-                $dataTypeLabel = $dataType->getLabel();
-            }
-
             // Note that "position" is implied by array order.
             $export['o:resource_template_property'][] = [
                 'o:alternate_label' => $templateProperty->alternateLabel(),
@@ -382,8 +375,7 @@ class ResourceTemplateController extends AbstractActionController
                 'o:is_required' => $templateProperty->isRequired(),
                 'o:is_private' => $templateProperty->isPrivate(),
                 'o:settings' => $templateProperty->settings(),
-                'data_type_name' => $dataTypeName,
-                'data_type_label' => $dataTypeLabel,
+                'data_types' => $templateProperty->dataTypeLabels(),
                 'vocabulary_namespace_uri' => $vocab->namespaceUri(),
                 'vocabulary_label' => $vocab->label(),
                 'local_name' => $property->localName(),
