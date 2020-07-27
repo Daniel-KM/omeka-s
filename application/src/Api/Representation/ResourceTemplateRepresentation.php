@@ -98,7 +98,7 @@ class ResourceTemplateRepresentation extends AbstractEntityRepresentation
     /**
      * Return the properties assigned to this resource template.
      *
-     * @return array
+     * @return ResourceTemplatePropertyRepresentation[]
      */
     public function resourceTemplateProperties()
     {
