@@ -50,7 +50,7 @@
             e.preventDefault();
             var typeButton = $(this);
             var field = typeButton.closest('.resource-values.field');
-            var value = makeNewValue(field.data('property-term'), null, typeButton.data('type'))
+            var value = makeNewValue(field.data('property-term'), typeButton.data('type'))
             field.find('.values').append(value);
         });
 
@@ -116,7 +116,7 @@
             $('#item-results').find('.resource')
                 .has('input.select-resource-checkbox:checked').each(function(index) {
                     if (0 < index) {
-                        value = makeNewValue(field.data('property-term'), null, 'resource');
+                        value = makeNewValue(field.data('property-term'), 'resource');
                         field.find('.values').append(value);
                     }
                     var valueObj = $(this).data('resource-values');
@@ -236,7 +236,7 @@
     /**
      * Make a new value.
      */
-    var makeNewValue = function(term, valueObj, dataType) {
+    var makeNewValue = function(term, dataType, valueObj) {
         // Get the value node from the templates.
         if (!dataType || typeof dataType !== 'string') {
             dataType = valueObj ? valueObj['type'] : '';
@@ -485,7 +485,6 @@
      * @param bool changeClass Whether to change the suggested class
      */
     var applyResourceTemplate = function(changeClass) {
-
         // Fieldsets may have been marked as required or private in a previous state.
         $('.field').removeClass('required');
         $('.field').removeClass('private');
@@ -494,7 +493,7 @@
         var templateId = templateSelect.val();
         var fields = $('#properties .resource-values');
 
-        var finalize = function() {
+        var finalize = function(resourceTemplate) {
             // Remove empty properties, except the templates ones.
             // TODO Keep properties selected by user (remove the "default-value"?).
             var filteredFields = templateId ? $('#properties .resource-values[data-template-id!="' + templateId + '"]') : $('#properties .resource-values');
@@ -507,10 +506,28 @@
             if (!$('#properties .resource-values').length) {
                 makeDefaultTemplate();
             }
-            // Add an empty value if none already exist in the property.
+            // Add an empty value if none already exist in the property and fill
+            // it with the default value set in the resource template, if any.
             fields.each(function() {
                 if (!$(this).find('.inputs .values > .value').length) {
-                    $(this).find('.inputs .values').append(makeDefaultValue($(this).data('property-term'), $(this).data('data-types').substring(0, ($(this).data('data-types') + ',').indexOf(','))));
+                    var defaultValueObj = null;
+                    if (resourceTemplate && resourceTemplate['o:resource_template_property'].length) {
+                        var propertyId = Number($(this).data('property-id'));
+                        resourceTemplate['o:resource_template_property'].some(function(rtp) {
+                            if (rtp['o:property']['o:id'] === propertyId && rtp['o:settings']['default_value'] && rtp['o:settings']['default_value'].length) {
+                                defaultValueObj = {
+                                    '@value': rtp['o:settings']['default_value'],
+                                    'is_public': !rtp['o:is_private'],
+                                    'property_id': propertyId,
+                                    'type': 'literal',
+                                };
+                                return true;
+                            }
+                        });
+                    }
+                    $(this).find('.inputs .values').append(
+                        makeDefaultValue($(this).data('property-term'), $(this).data('data-types').substring(0, ($(this).data('data-types') + ',').indexOf(',')), defaultValueObj)
+                    );
                 }
             });
         };
@@ -635,15 +652,15 @@
                     });
                 }
 
-                finalize();
+                finalize(data);
             })
             .fail(function() {
                 console.log('Failed loading resource template from API');
             });
     }
 
-    var makeDefaultValue = function (term, dataType) {
-        return makeNewValue(term, null, dataType)
+    var makeDefaultValue = function (term, dataType, valueObj) {
+        return makeNewValue(term, dataType, valueObj)
             .addClass('default-value')
             .one('change', '*', function (event) {
                 $(event.delegateTarget).removeClass('default-value');
@@ -669,7 +686,7 @@
             $.each(valuesJson, function(term, valueObj) {
                 var field = makeNewField(term);
                 $.each(valueObj.values, function(index, value) {
-                    field.find('.values').append(makeNewValue(term, value));
+                    field.find('.values').append(makeNewValue(term, null, value));
                 });
             });
         }
