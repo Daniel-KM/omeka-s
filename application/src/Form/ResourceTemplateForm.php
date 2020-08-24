@@ -4,6 +4,7 @@ namespace Omeka\Form;
 use Omeka\Form\Element\ResourceClassSelect;
 use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerAwareTrait;
+use Zend\Form\Fieldset;
 use Zend\Form\Form;
 
 class ResourceTemplateForm extends Form
@@ -50,6 +51,14 @@ class ResourceTemplateForm extends Form
             'type' => 'hidden',
             'attributes' => [
                 'id' => 'description-property-id',
+            ],
+        ]);
+
+        $this->add([
+            'type' => Fieldset::class,
+            'name' => 'o:settings',
+            'options' => [
+                'label' => 'Other settings', // @translate
             ],
         ]);
 
