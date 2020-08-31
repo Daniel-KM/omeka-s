@@ -246,6 +246,7 @@
         }
         var value = $('.value.template[data-data-type="' + dataType + '"]').clone(true);
         value.removeClass('template');
+        value.attr('data-term', term);
 
         // Get and display the value's visibility.
         var isPublic = true; // values are public by default
@@ -398,6 +399,10 @@
             originalDescription.hide();
         }
 
+        // Store specific settings of this template property.
+        field.attr('data-template-id', templateId);
+        field.data('settings', templateProperty['o:settings'] ? templateProperty['o:settings'] : {});
+
         // Remove any unchanged default values for this property so we start fresh.
         field.find('.value.default-value').remove();
 
@@ -431,6 +436,11 @@
         var templateId = templateSelect.val();
         var fields = $('#properties .resource-values');
 
+        // Reset settings of the previous template.
+        $('#resource-values').data('template-settings', {});
+        fields.attr('data-template-id', '');
+        fields.data('settings', {});
+
         // Fieldsets may have been marked as required or private in a previous state.
         fields.removeClass('required');
         fields.removeClass('private');
@@ -452,6 +462,9 @@
                             classSelect.trigger('chosen:updated');
                         }
                     }
+
+                    // Store global settings of the template.
+                    $('#resource-values').data('template-settings', data['o:settings'] ? data['o:settings'] : {});
 
                     // Rewrite every property field defined by the template. We
                     // reverse the order so property fields on page that are not
