@@ -21,7 +21,7 @@ $this->htmlElement('body')->appendAttribute('class', 'resource-templates show');
 <?php endif; ?>
 
 <div>
-    <dl><?php foreach ($resourceTemplate->settings() as $key => $value): ?>
+    <dl><?php foreach ($resourceTemplate->data() as $key => $value): ?>
         <?php if (!$value) continue; ?>
         <dt><?php echo str_replace('_', ' ', $key); ?></dt>
         <?php if (is_array($value)): ?>
@@ -72,7 +72,7 @@ $this->htmlElement('body')->appendAttribute('class', 'resource-templates show');
             <td><?php echo $escape($resourceTemplateProperty->alternateComment()); ?></td>
             <td><?php echo $resourceTemplateProperty->isRequired() ? $translate('Yes') : $translate('No'); ?></td>
             <td><?php echo $resourceTemplateProperty->isPrivate() ? $translate('Yes') : $translate('No'); ?></td>
-            <td><dl><?php foreach ($resourceTemplateProperty->settings() as $key => $value): ?>
+            <td><dl><?php foreach ($resourceTemplateProperty->data() as $key => $value): ?>
                 <?php if (!$value) continue; ?>
                 <dt><?php echo str_replace('_', ' ', $key); ?></dt>
                 <?php if (is_array($value)): ?>

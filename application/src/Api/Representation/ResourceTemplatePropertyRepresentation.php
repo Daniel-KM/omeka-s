@@ -33,7 +33,7 @@ class ResourceTemplatePropertyRepresentation extends AbstractRepresentation
             'o:data_type' => $this->dataTypes(),
             'o:is_required' => $this->isRequired(),
             'o:is_private' => $this->isPrivate(),
-            'o:settings' => $this->settings(),
+            'o:data' => $this->data(),
         ];
     }
 
@@ -165,23 +165,18 @@ class ResourceTemplatePropertyRepresentation extends AbstractRepresentation
     }
 
     /**
-     * @return array
-     */
-    public function settings()
-    {
-        return $this->templateProperty->getSettings();
-    }
-
-    /**
      * @param string $name
      * @param mixed $default
      * @return mixed
      */
-    public function setting($name, $default = null)
+    public function data($name = null, $default = null)
     {
-        $settings = $this->templateProperty->getSettings();
-        return array_key_exists($name, $settings)
-            ? $settings[$name]
+        $data = $this->templateProperty->getData();
+        if (is_null($name)) {
+            return $data;
+        }
+        return array_key_exists($name, $data)
+            ? $data[$name]
             : $default;
     }
 }

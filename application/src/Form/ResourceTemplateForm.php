@@ -57,7 +57,7 @@ class ResourceTemplateForm extends Form
 
         $this->add([
             'type' => Fieldset::class,
-            'name' => 'o:settings',
+            'name' => 'o:data',
             'options' => [
                 'label' => 'Advanced settings', // @translate
             ],

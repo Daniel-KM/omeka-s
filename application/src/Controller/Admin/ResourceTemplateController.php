@@ -290,7 +290,7 @@ class ResourceTemplateController extends AbstractActionController
         // Manage import from an export of Omeka < 3.0 for settings.
 
         // Validate template settings.
-        if (array_key_exists('o:settings', $import) && !is_array($import['o:settings'])) {
+        if (array_key_exists('o:data', $import) && !is_array($import['o:data'])) {
             return false;
         }
 
@@ -337,7 +337,7 @@ class ResourceTemplateController extends AbstractActionController
                 || (!is_string($property['o:alternate_comment']) && !is_null($property['o:alternate_comment']))
                 || !is_bool($property['o:is_required'])
                 || !is_bool($property['o:is_private'])
-                || (array_key_exists('o:settings', $property) && !is_array($property['o:settings']))
+                || (array_key_exists('o:data', $property) && !is_array($property['o:data']))
             ) {
                 return false;
             }
@@ -366,7 +366,7 @@ class ResourceTemplateController extends AbstractActionController
         $export = [
             'o:label' => $template->label(),
             'o:resource_template_property' => [],
-            'o:settings' => $template->settings(),
+            'o:data' => $template->data(),
         ];
 
         if ($templateClass) {
@@ -409,7 +409,7 @@ class ResourceTemplateController extends AbstractActionController
                 'o:alternate_comment' => $templateProperty->alternateComment(),
                 'o:is_required' => $templateProperty->isRequired(),
                 'o:is_private' => $templateProperty->isPrivate(),
-                'o:settings' => $templateProperty->settings(),
+                'o:data' => $templateProperty->data(),
                 'data_types' => $templateProperty->dataTypeLabels(),
                 'vocabulary_namespace_uri' => $vocab->namespaceUri(),
                 'vocabulary_label' => $vocab->label(),
@@ -509,10 +509,10 @@ class ResourceTemplateController extends AbstractActionController
 
         if ($isPost) {
             $post = $this->params()->fromPost();
-            // For an undetermined reason, the fieldset "o:settings" inside the
+            // For an undetermined reason, the fieldset "o:data" inside the
             // collection is not validated. So elements should be attached to
             // the property fieldset with attribute "data-setting-key", so then
-            // can be moved in "o:settings" after automatic filter and validation.
+            // can be moved in "o:data" after automatic filter and validation.
             $post = $this->fixPostArray($post);
             $post = $this->fixDataArray($post);
             $form->setData($post);
@@ -565,8 +565,8 @@ class ResourceTemplateController extends AbstractActionController
         foreach ($data['o:resource_template_property'] as $key => $value) {
             $data['o:resource_template_property'][$key]['o:property[o:id]'] = $value['o:property']['o:id'];
             unset($data['o:resource_template_property'][$key]['o:property[o:id']);
-            if (!empty($value['o:settings'])) {
-                $data['o:resource_template_property'][$key] = array_merge($data['o:resource_template_property'][$key], $value['o:settings']);
+            if (!empty($value['o:data'])) {
+                $data['o:resource_template_property'][$key] = array_merge($data['o:resource_template_property'][$key], $value['o:data']);
             }
         }
         return $data;
@@ -584,8 +584,8 @@ class ResourceTemplateController extends AbstractActionController
             // Kept to manage issues.
             $post['o:resource_template_property'][$key]['o:property[o:id]'] = $value['o:property[o:id'];
             unset($post['o:resource_template_property'][$key]['o:property[o:id']);
-            if (!empty($value['o:settings'])) {
-                $post['o:resource_template_property'][$key] = array_merge($post['o:resource_template_property'][$key], $value['o:settings']);
+            if (!empty($value['o:data'])) {
+                $post['o:resource_template_property'][$key] = array_merge($post['o:resource_template_property'][$key], $value['o:data']);
             }
         }
         return $post;
@@ -601,7 +601,7 @@ class ResourceTemplateController extends AbstractActionController
                 $settingKeys[$element->getName()] = $settingKey;
             }
         }
-        // Move settings into o:settings and remove empty settings.
+        // Move settings into o:data and remove empty settings.
         $data += [
             'o:resource_class' => empty($data['o:resource_class[o:id]']) ? null : ['o:id' => (int) $data['o:resource_class[o:id]']],
             'o:title_property' => empty($data['o:title_property[o:id]']) ? null : ['o:id' => (int) $data['o:title_property[o:id]']],
@@ -611,7 +611,7 @@ class ResourceTemplateController extends AbstractActionController
         foreach ($data['o:resource_template_property'] as $key => $value) {
             $data['o:resource_template_property'][$key]['o:property']['o:id'] = $data['o:resource_template_property'][$key]['o:property[o:id]'];
             unset($data['o:resource_template_property'][$key]['o:property[o:id]']);
-            $data['o:resource_template_property'][$key]['o:settings'] = array_filter(array_intersect_key($value, $settingKeys), function ($v) {
+            $data['o:resource_template_property'][$key]['o:data'] = array_filter(array_intersect_key($value, $settingKeys), function ($v) {
                 return is_string($v) ? strlen(trim($v)) : !empty($v);
             });
             $data['o:resource_template_property'][$key] = array_diff_key($data['o:resource_template_property'][$key], $settingKeys);
@@ -632,7 +632,7 @@ class ResourceTemplateController extends AbstractActionController
             'o:resource_class' => null,
             'o:title_property' => null,
             'o:description_property' => null,
-            'o:settings' => [],
+            'o:data' => [],
             'o:resource_template_property' => [],
         ];
 
@@ -649,7 +649,7 @@ class ResourceTemplateController extends AbstractActionController
                 'o:data_type' => '',
                 'o:is_required' => 0,
                 'o:is_private' => 0,
-                'o:settings' => [],
+                'o:data' => [],
             ];
         }
 

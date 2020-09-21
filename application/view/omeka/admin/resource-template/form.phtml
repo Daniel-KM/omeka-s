@@ -27,7 +27,7 @@ $this->headScript()
 <?php echo $this->formRow($element); ?>
 <?php endforeach; ?>
 
-<?php $templateSettings = $form->get('o:settings'); ?>
+<?php $templateSettings = $form->get('o:data'); ?>
 <?php echo $this->formCollection($templateSettings, count($templateSettings->getElements())); // Don't display advanced settings label if empty. ?>
 
 <ul id="properties" data-add-new-property-row-url="<?php echo $escape($this->url(null, ['action' => 'add-new-property-row'], true)); ?>">
@@ -114,7 +114,7 @@ $this->headScript()
         <?php $elements = array_filter($propertyFieldset->getElements(), function ($element) { return $element->getAttribute('data-setting-key'); });
         if (count($elements)): ?>
         <div class="field settings">
-            <h3><?php echo $propertyFieldset->get('o:settings')->getLabel(); ?></h3>
+            <h3><?php echo $propertyFieldset->get('o:data')->getLabel(); ?></h3>
             <?php foreach ($elements as $element): ?>
             <div class="option">
                 <?php echo $formLabel($element); ?>

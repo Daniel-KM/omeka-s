@@ -115,7 +115,7 @@ class ResourceTemplatePropertyFieldset extends Fieldset implements InputFilterPr
             // Elements inside this fieldset are not filtered and lost.
             ->add([
                 'type' => Fieldset::class,
-                'name' => 'o:settings',
+                'name' => 'o:data',
                 'options' => [
                     'label' => 'Advanced settings', // @translate
                 ],
@@ -139,7 +139,7 @@ class ResourceTemplatePropertyFieldset extends Fieldset implements InputFilterPr
             'o:data_type' => [
                 'required' => false,
             ],
-            'o:settings' => [
+            'o:data' => [
                 'required' => false,
             ],
         ];

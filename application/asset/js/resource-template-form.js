@@ -68,9 +68,9 @@ propertyList.on('click', '.property-edit', function(e) {
     var isRequired = prop.find('[data-property-key="o:is_required"]');
     var isPrivate = prop.find('[data-property-key="o:is_private"]');
     var dataTypes = prop.find('[data-property-key="o:data_type"]');
-    var settings = {};
+    var data = {};
     prop.find('[data-setting-key]').each(function(index, hiddenElement) {
-        settings[index] = $(hiddenElement);
+        data[index] = $(hiddenElement);
     });
 
     // Copy values into the sidebar.
@@ -84,9 +84,9 @@ propertyList.on('click', '.property-edit', function(e) {
     $('#edit-sidebar #is-private').prop('checked', isPrivate.prop('checked'));
     $('#edit-sidebar #data-type').val(dataTypes.val());
     $('#edit-sidebar #data-type').trigger('chosen:updated');
-    $.each(settings, function(index, hiddenElement) {
-        var settingKey = hiddenElement.data('setting-key');
-        var sidebarElement = $('#edit-sidebar [data-setting-key="' +  settingKey + '"]');
+    $.each(data, function(index, hiddenElement) {
+        var dataKey = hiddenElement.data('setting-key');
+        var sidebarElement = $('#edit-sidebar [data-setting-key="' +  dataKey + '"]');
         var sidebarElementType = sidebarElement.prop('type') ? sidebarElement.prop('type') : sidebarElement.prop('nodeName').toLowerCase();
         if (sidebarElementType === 'checkbox') {
             sidebarElement.prop('checked', hiddenElement.prop('checked'));

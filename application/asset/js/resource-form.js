@@ -424,9 +424,9 @@
             originalDescription.hide();
         }
 
-        // Store specific settings of this template property.
+        // Store specific data settings of this template property.
         field.attr('data-template-id', templateId);
-        field.data('settings', templateProperty['o:settings'] ? templateProperty['o:settings'] : {});
+        field.data('template-property-data', templateProperty['o:data'] ? templateProperty['o:data'] : {});
 
         // Remove any unchanged default values for this property so we start fresh.
         field.find('.value.default-value').remove();
@@ -492,11 +492,11 @@
         var templateId = templateSelect.val();
         var fields = $('#properties .resource-values');
 
-        // Reset settings of the previous template.
-        $('#resource-values').data('template-settings', {});
+        // Reset data settings of the previous template.
+        $('#resource-values').data('template-data', {});
         fields.data('template-id', '');
         fields.attr('data-template-id', '');
-        fields.data('settings', {});
+        fields.data('template-property-data', {});
 
         // Fieldsets may have been marked as required or private in a previous state.
         fields.removeClass('required');
@@ -541,8 +541,8 @@
                         }
                     }
 
-                    // Store global settings of the template.
-                    $('#resource-values').data('template-settings', data['o:settings'] ? data['o:settings'] : {});
+                    // Store global data settings of the template.
+                    $('#resource-values').data('template-data', data['o:data'] ? data['o:data'] : {});
 
                     // Rewrite every property field defined by the template. We
                     // reverse the order so property fields on page that are not
